@@ -79,7 +79,35 @@ function TabContent({ item }) {
     const [likes, setLikes] = useState(0);
 
     function handleInc() {
-        setLikes(likes + 1);
+        // setLikes(likes + 1);
+        // Always use callback function.
+        setLikes((likes) => likes + 1);
+    }
+
+    function handleTripleInc() {
+        // Updating state in react is asynchronous
+        // ❌
+        // setLikes(likes + 1); // 1
+        // setLikes(likes + 1); // 1
+        // setLikes(likes + 1); // 1
+        // ⭕
+        // setLikes((likes) => likes + 1);
+        // setLikes((likes) => likes + 1);
+        // setLikes((likes) => likes + 1);
+        // But handleInc is perfectly fine
+
+        setLikes((likes) => likes + 3);
+    }
+
+    // if new state is the same as the current state, React will not re-render
+    function handleUndo() {
+        setShowDetails(true);
+        setLikes(0);
+    }
+
+    // Automatic batching can happen in React 18
+    function handleUndoLater() {
+        setTimeout(handleUndo, 2000);
     }
 
     return (
@@ -95,13 +123,13 @@ function TabContent({ item }) {
                 <div className="hearts-counter">
                     <span>{likes} ❤️</span>
                     <button onClick={handleInc}>+</button>
-                    <button>+++</button>
+                    <button onClick={handleTripleInc}>+++</button>
                 </div>
             </div>
 
             <div className="tab-undo">
-                <button>Undo</button>
-                <button>Undo in 2s</button>
+                <button onClick={handleUndo}>Undo</button>
+                <button onClick={handleUndoLater}>Undo in 2s</button>
             </div>
         </div>
     );

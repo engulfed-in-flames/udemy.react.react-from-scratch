@@ -61,6 +61,7 @@ body {
 }
 
 .box {
+    overflow-y: scroll;
     width: 42rem;
     max-width: 42rem;
     background-color: var(--color-background-500);

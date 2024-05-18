@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
 
+// If you declare variables inside a component, they will be reinitialized every time the component re-renders.
 const APP_TITLE = "usePopcorn";
 const BASE_URL = `http://www.omdbapi.com/`;
 const API_KEY = "2e845a60";
@@ -15,6 +16,13 @@ export default function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [selectedId, setSelectedId] = useState("");
+
+    // ❌ NEVER be allowed in render logic. Infinite loop of fetching and updating state happens.
+    // fetch(url)
+    //     .then((res) => res.json())
+    //     .then((data) => console.log(data));
+
+    // Executed after the first render (mount) and every time the component re-renders. (Triggered by rendering)
 
     function handleSelectMovie(id) {
         setSelectedId((selectedId) => (id === selectedId ? "" : id));
@@ -33,6 +41,7 @@ export default function App() {
     }
 
     useEffect(() => {
+        // Always cleanup the previous effect before running the next effect.
         const controller = new AbortController();
 
         async function fetchMovies() {
@@ -42,6 +51,7 @@ export default function App() {
                 setIsLoading(true);
                 setError("");
 
+                // fetch will throw an error when the request is aborted.
                 const res = await fetch(url, { signal: controller.signal });
                 if (!res.ok) throw new Error("Failed to fetch movies");
 
@@ -227,6 +237,7 @@ function MovieDetails({
         onCloseMovieDetails();
     }
 
+    // One useEffect for one side effect.
     useEffect(
         function () {
             const params = {
@@ -242,7 +253,7 @@ function MovieDetails({
                 if (!res.ok) throw new Error();
 
                 const data = await res.json();
-
+                // After setting state, the component will re-render.
                 setMovie(data);
                 setIsLoading(false);
             }
@@ -252,6 +263,7 @@ function MovieDetails({
     );
 
     useEffect(() => {
+        // Definitely side effect
         if (!title) return;
         document.title = `MOVIE | ${title}`;
 
@@ -266,7 +278,7 @@ function MovieDetails({
                 onCloseMovieDetails();
             }
         }
-
+        // If we open movie details 10 times without cleanup, we will have 10 event listeners.
         document.addEventListener("keydown", callback);
 
         return () => {
